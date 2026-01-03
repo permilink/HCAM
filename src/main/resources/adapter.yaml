@@ -1,0 +1,33 @@
+{
+  "blockchainType": "Hyperledger-Fabric",
+  "chaincodeId": "Fabric-1001",
+  "contract": "digital_asset_contract_v2",
+  "operations": {
+    "create": {
+      "functionName": "CreateAsset",
+      "parameterMapping": [
+        { "source": "assetId", "type": "string" },
+        { "source": "amount", "type": "string" }
+      ]
+    },
+    "update": {
+      "functionName": "ChangeAsset",
+      "parameterMapping": [
+        { "source": "assetId", "type": "string" },
+        { "source": "amount", "type": "string" }
+      ]
+    },
+    "delete": {
+      "functionName": "DeleteAsset",
+      "parameterMapping": [
+        { "source": "assetId", "type": "string" }
+      ]
+    },
+    "query": {
+      "functionName": "ReadAsset",
+      "parameterMapping": [
+        { "source": "assetId", "type": "string" }
+      ]
+    }
+  }
+}
