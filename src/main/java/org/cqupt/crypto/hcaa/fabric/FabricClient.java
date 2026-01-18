@@ -8,6 +8,8 @@ import org.hyperledger.fabric.client.Contract;
 import org.hyperledger.fabric.client.Gateway;
 import org.hyperledger.fabric.client.GatewayException;
 import org.hyperledger.fabric.client.Network;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
@@ -23,20 +25,19 @@ public class FabricClient implements BlockchainClient {
     private Gateway gateway;
     private String channelName;
     private String contractName; // 当前业务合约名
-    private String peerAddress;
-    private String mspId;
     private static Map<String, AdapterConfig.Operation> fun_operation;
 
     @Override
     public void init() throws Exception {
-        // 从 fabric.config 读取配置（示例）
         Properties config = loadConfig("fabric.config");
-        this.peerAddress = config.getProperty("peer_endpoint_address");
-        this.mspId = config.getProperty("msp_id");
         this.channelName = config.getProperty("channel_name");
-
-
-        this.gateway = Fabrics.fabricGateway();
+        String userCertPath = config.getProperty("user_cert_path");
+        System.out.println("✅ user_cert_path: " + userCertPath);
+        String userKeyPath = config.getProperty("user_privatekey_path");
+        System.out.println("✅ user_key_path: " + userKeyPath);
+        String tlsCertPath = config.getProperty("peer_tls_cert_path");
+        System.out.println("✅ peer_tls_cert_path: " + tlsCertPath);
+        this.gateway = Fabrics.fabricGateway(tlsCertPath,userCertPath,userKeyPath, config.getProperty("msp_id"),config.getProperty("peer_endpoint_address"));
         fun_operation = HcamApplication.getFun_operation();
     }
 
@@ -201,13 +202,16 @@ public class FabricClient implements BlockchainClient {
 
     // ========== 加载配置文件 ==========
 
-    private Properties loadConfig(String configFile) throws Exception {
-        InputStream inputStream = getClass().getClassLoader().getResourceAsStream(configFile);
-        if (inputStream == null) {
-            throw new FileNotFoundException("Configuration file not found in classpath: " + configFile);
-        }
+    private Properties loadConfig(String configFilePath) throws Exception {
+        PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
+        Resource resource = resolver.getResource(configFilePath);
+        File configFile = resource.getFile();
         Properties properties = new Properties();
-        properties.load(inputStream);
+        if (configFile.exists()) {
+            properties.load(Files.newBufferedReader(configFile.toPath()));
+        } else {
+            System.err.println("Configuration file not found: " + configFile.getAbsolutePath());
+        }
         return properties;
     }
 

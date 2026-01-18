@@ -25,7 +25,7 @@ import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
-@Component("HyperLedger-Fabric")
+//@Component("HyperLedger-Fabric")
 public class Fabrics {
 
     private static final Properties pros = new Properties();
@@ -35,7 +35,7 @@ public class Fabrics {
     public void init(){
         try {
             PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
-            Resource resource = resolver.getResource("fabric.config");
+            Resource resource = resolver.getResource("src/main/resources/fabric.config");
             File configFile = resource.getFile();
 
             if (configFile.exists()) {
@@ -48,43 +48,43 @@ public class Fabrics {
         }
     }
 
-    private static ManagedChannel newGrpcConnection() throws IOException, CertificateException, CertificateException {
-        BufferedReader tlsCertReader = Files.newBufferedReader(Fabrics.getPeerCertPath());
+    private static ManagedChannel newGrpcConnection(String tlsCertPath, String peerEndPtAddr) throws IOException, CertificateException, CertificateException {
+        BufferedReader tlsCertReader = Files.newBufferedReader(Paths.get(tlsCertPath));
         X509Certificate tlsCert = Identities.readX509Certificate(tlsCertReader);
 
-        return NettyChannelBuilder.forTarget(Fabrics.getPeerEndPtAddr())
+        return NettyChannelBuilder.forTarget(peerEndPtAddr)
                 .sslContext(GrpcSslContexts.forClient().trustManager(tlsCert).build())
                 .build();
     }
 
-    public static Identity newIdentity() throws IOException, CertificateException {
-        BufferedReader certReader = Files.newBufferedReader(Fabrics.getUserCertPath());
+    public static Identity newIdentity(String userCertPath, String mspId) throws IOException, CertificateException {
+        BufferedReader certReader = Files.newBufferedReader(Paths.get(userCertPath));
         X509Certificate certificate = Identities.readX509Certificate(certReader);
 
-        return new X509Identity(Fabrics.getMsp(), certificate);
+        return new X509Identity(mspId, certificate);
     }
 
-    public static Signer newSigner() throws IOException, InvalidKeyException, InvalidKeyException {
-        BufferedReader keyReader = Files.newBufferedReader(getPrivateKeyPath());
+    public static Signer newSigner(String pk) throws IOException, InvalidKeyException, InvalidKeyException {
+        BufferedReader keyReader = Files.newBufferedReader(getPrivateKeyPath(pk));
         PrivateKey privateKey = Identities.readPrivateKey(keyReader);
 
         return Signers.newPrivateKeySigner(privateKey);
     }
 
-    private static Path getPrivateKeyPath() throws IOException {
-        try (Stream<Path> keyFiles = Files.list(Fabrics.getUserPriKeyPath())) {
+    private static Path getPrivateKeyPath(String pk) throws IOException {
+        try (Stream<Path> keyFiles = Files.list(Paths.get(pk))) {
             return keyFiles.findFirst().orElseThrow(null);
         }
     }
 
-    public static Gateway fabricGateway() {
+    public static Gateway fabricGateway(String tlsCertPath, String userCertPath, String userPriKeyPath, String mspId,String peerEndPtAddr) {
 
         Gateway.Builder builder = null;
         try {
-            channel = newGrpcConnection();
+            channel = newGrpcConnection(tlsCertPath,peerEndPtAddr);
 
             // Default timeouts for different gRPC calls
-            builder = Gateway.newInstance().identity(newIdentity()).signer(newSigner()).connection(channel)
+            builder = Gateway.newInstance().identity(newIdentity(userCertPath,mspId)).signer(newSigner(userPriKeyPath)).connection(channel)
                     // Default timeouts for different gRPC calls
                     .evaluateOptions(options -> options.withDeadlineAfter(5, TimeUnit.SECONDS))
                     .endorseOptions(options -> options.withDeadlineAfter(15, TimeUnit.SECONDS))
@@ -131,6 +131,7 @@ public class Fabrics {
     }
 
     private static Path getPeerCertPath() {
+        System.out.println("fabric peer_tls_cert_path is "+pros.getProperty("peer_tls_cert_path"));
         return Paths.get(pros.getProperty("peer_tls_cert_path"));
     }
 

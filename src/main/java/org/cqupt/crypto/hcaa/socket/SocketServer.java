@@ -1,5 +1,4 @@
 package org.cqupt.crypto.hcaa.socket;
-// src/main/java/org/cqupt/crypto/hcaa/util/SocketServer.java
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;

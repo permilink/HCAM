@@ -3,7 +3,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.cqupt.crypto</groupId>
-    <artifactId>HCAA</artifactId>
+    <artifactId>HCAM</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>HCAM</name>
     <description>HCAM</description>
@@ -17,35 +17,35 @@
         <maven.checkstyle.version>3.0.0</maven.checkstyle.version>
         <maven.javadoc.version>2.9.1</maven.javadoc.version>
     </properties>
-    <repositories>
-        <repository>
-            <id>central</id>
-            <url>https://repo1.maven.org/maven2/</url>
-        </repository>
-        <repository>
-            <id>chainmaker-repo</id>
-            <url>https://nexus.chainmaker.org.cn/repository/maven-public/</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-    </repositories>
+<!--    <repositories>-->
+<!--        <repository>-->
+<!--            <id>central</id>-->
+<!--            <url>https://repo1.maven.org/maven2/</url>-->
+<!--        </repository>-->
+<!--        <repository>-->
+<!--            <id>chainmaker-repo</id>-->
+<!--            <url>https://nexus.chainmaker.org.cn/repository/maven-public/</url>-->
+<!--            <releases>-->
+<!--                <enabled>true</enabled>-->
+<!--            </releases>-->
+<!--            <snapshots>-->
+<!--                <enabled>false</enabled>-->
+<!--            </snapshots>-->
+<!--        </repository>-->
+<!--    </repositories>-->
 
-    <pluginRepositories>
-        <pluginRepository>
-            <id>chainmaker-repo</id>
-            <url>https://nexus.chainmaker.org.cn/repository/maven-public/</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </pluginRepository>
-    </pluginRepositories>
+<!--    <pluginRepositories>-->
+<!--        <pluginRepository>-->
+<!--            <id>chainmaker-repo</id>-->
+<!--            <url>https://nexus.chainmaker.org.cn/repository/maven-public/</url>-->
+<!--            <releases>-->
+<!--                <enabled>true</enabled>-->
+<!--            </releases>-->
+<!--            <snapshots>-->
+<!--                <enabled>false</enabled>-->
+<!--            </snapshots>-->
+<!--        </pluginRepository>-->
+<!--    </pluginRepositories>-->
 
 
 
@@ -82,11 +82,6 @@
             <groupId>org.chainmaker</groupId>
             <artifactId>chainmaker-sdk-java</artifactId>
             <version>2.3.2</version>
-        </dependency>
-        <dependency>
-            <groupId>org.hyperledger.fabric</groupId>
-            <artifactId>fabric-gateway</artifactId>
-            <version>1.10.0</version>
         </dependency>
         <dependency>
             <groupId>org.hyperledger.fabric</groupId>
@@ -139,7 +134,26 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
-
+        <dependency>
+            <groupId>org.fisco-bcos.java-sdk</groupId>
+            <artifactId>fisco-bcos-java-sdk</artifactId>
+            <version>3.6.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.web3j</groupId>
+            <artifactId>core</artifactId>
+            <version>4.14.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.web3j</groupId>
+            <artifactId>geth</artifactId>
+            <version>4.14.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.web3j</groupId>
+            <artifactId>codegen</artifactId>
+            <version>4.10.0</version>
+        </dependency>
     </dependencies>
     <dependencyManagement>
         <dependencies>
@@ -196,6 +210,23 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>org.web3j</groupId>
+                <artifactId>web3j-maven-plugin</artifactId>
+                <version>4.9.4</version>
+                <configuration>
+                    <packageName>org.cqupt.crypto.hcaa.ethereum.contract</packageName>
+                    <sourceDestination>${project.basedir}/src/main/java/org/cqupt/crypto/hcaa/ethereum/contract</sourceDestination>
+
+                    <truffleJsonFiles>
+                        <directory>${project.basedir}/src/main/resources/ethereum</directory>
+                        <includes>
+                            <include>*.json</include>
+                        </includes>
+                    </truffleJsonFiles>
+                </configuration>
+            </plugin>
+
         </plugins>
     </build>
 
